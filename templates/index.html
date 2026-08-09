@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samaadhan</title>
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/static/manifest.json">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" rel="stylesheet">
+    <style>
+        /* Scroll reveal base */
+        .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+        .reveal.reveal-visible { opacity: 1; transform: translateY(0); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: #667eea;
+        }
+
+        .logo h1 {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: #333;
+            border: 2px solid #667eea;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-content { padding: 2rem 0; }
+
+        .hero {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 2rem;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            background: rgba(102, 126, 234, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .location-section {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        #map {
+            height: 300px;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .submit-section {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .btn-submit {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-card i { font-size: 3rem; margin-bottom: 1rem; color: #ffd700; }
+
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .location-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero h2 {
+                font-size: 2rem;
+            }
+            
+            .nav-buttons {
+                margin-top: 1rem;
+            }
+            
+            .header-content {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header reveal">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-city"></i>
+                    <h1>Samaadhan</h1>
+                </div>
+                <div class="nav-buttons">
+                    <a href="#report-form" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Report Issue
+                    </a>
+                    <a href="/admin" class="btn btn-secondary">
+                        <i class="fas fa-cog"></i> Admin Panel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="hero reveal">
+                <h2>Report Civic Issues in Your Community</h2>
+                <p>Help make Jharkhand cleaner and better by reporting civic issues like potholes, broken streetlights, waste management problems, and more.</p>
+            </div>
+
+            <div class="card reveal" id="report-form">
+                <h3 style="text-align: center; margin-bottom: 2rem; color: #333; font-size: 1.8rem;">
+                    <i class="fas fa-exclamation-triangle" style="color: #ff6b6b;"></i>
+                    Report a Civic Issue
+                </h3>
+
+                <div class="alert alert-success" id="success-alert"></div>
+                <div class="alert alert-error" id="error-alert"></div>
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Submitting your report...</p>
+                </div>
+
+                <form id="issue-form" enctype="multipart/form-data">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="citizen_name">Your Name *</label>
+                            <input type="text" id="citizen_name" name="citizen_name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="citizen_phone">Phone Number *</label>
+                            <input type="tel" id="citizen_phone" name="citizen_phone" required inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit number">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="citizen_email">Email Address</label>
+                            <input type="email" id="citizen_email" name="citizen_email">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category">Issue Category *</label>
+                            <select id="category" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="Roads & Infrastructure">Roads & Infrastructure</option>
+                                <option value="Street Lighting">Street Lighting</option>
+                                <option value="Water & Drainage">Water & Drainage</option>
+                                <option value="Waste Management">Waste Management</option>
+                                <option value="Parks & Environment">Parks & Environment</option>
+                                <option value="Traffic & Transportation">Traffic & Transportation</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="title">Issue Title *</label>
+                            <input type="text" id="title" name="title" placeholder="Brief description of the issue" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="description">Detailed Description *</label>
+                            <textarea id="description" name="description" placeholder="Provide detailed information about the issue..." required></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="short_note">Short Note (optional)</label>
+                            <input type="text" id="short_note" name="short_note" placeholder="One-liner or brief note" maxlength="300">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="address">Address/Location *</label>
+                            <div class="location-section">
+                                <input type="text" id="address" name="address" placeholder="Enter the address or describe the location" required>
+                                <button type="button" class="btn btn-secondary" onclick="getCurrentLocation()">
+                                    <i class="fas fa-location-arrow"></i> Use GPS
+                                </button>
+                            </div>
+                            <div id="map"></div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Upload Photo (Optional)</label>
+                            <div class="file-upload">
+                                <input type="file" id="photo" name="photo" accept="image/*">
+                                <div class="file-upload-label">
+                                    <i class="fas fa-camera"></i>
+                                    <span>Click to upload a photo or drag and drop</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Voice Note (Optional)</label>
+                            <div class="file-upload" style="margin-bottom: .5rem;">
+                                <input type="file" id="voice_note_file" name="voice_note" accept="audio/*">
+                                <div class="file-upload-label">
+                                    <i class="fas fa-microphone"></i>
+                                    <span>Click to upload a voice note (audio)</span>
+                                </div>
+                            </div>
+                            <div>
+                                <button type="button" id="startRec" class="btn btn-secondary" style="margin-right:.5rem;"><i class="fas fa-circle"></i> Start Recording</button>
+                                <button type="button" id="stopRec" class="btn btn-secondary" disabled><i class="fas fa-square"></i> Stop</button>
+                                <audio id="recPreview" controls style="display:none; margin-left:.5rem;"></audio>
+                                <small style="display:block; color:#475569; margin-top:.4rem;">If your browser supports microphone access, you can record a short voice note here instead of uploading a file.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+
+                    <!-- Helpline section -->
+                    <div class="form-group full-width" style="margin-top: .5rem;">
+                        <div style="padding: 1rem; border-radius: 10px; background: #f1f5f9; border:1px solid #e5e7eb;">
+                            <strong style="display:block; margin-bottom:.4rem;">Need immediate help?</strong>
+                            <p style="margin:0 0 .8rem 0; color:#475569;">Call our civic helpline for urgent assistance.</p>
+                            <a href="tel:112" style="display:inline-block; background: #10b981; color:#fff; padding:.7rem 1.2rem; border-radius: 9999px; text-decoration:none; font-weight:700;">
+                                Call Helpline (112)
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="submit-section">
+                        <button type="submit" class="btn btn-submit">
+                            <i class="fas fa-paper-plane"></i> Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="features">
+                <div class="feature-card reveal" style="transition-delay: .05s;">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h3>Mobile Friendly</h3>
+                    <p>Report issues on the go with our mobile-optimized interface</p>
+                </div>
+                <div class="feature-card reveal" style="transition-delay: .15s;">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>GPS Location</h3>
+                    <p>Automatic location detection for precise issue reporting</p>
+                </div>
+                <div class="feature-card reveal" style="transition-delay: .25s;">
+                    <i class="fas fa-clock"></i>
+                    <h3>Real-time Tracking</h3>
+                    <p>Track the status of your reported issues in real-time</p>
+                </div>
+                <div class="feature-card reveal" style="transition-delay: .35s;">
+                    <i class="fas fa-users"></i>
+                    <h3>Community Driven</h3>
+                    <p>Help build a better community through collective reporting</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js"></script>
+    <script>
+        let map;
+        let marker;
+        let mediaRecorder; let voiceChunks = []; let voiceBlob = null;
+
+        // Initialize map
+        function initMap() {
+            // Default to Ranchi, Jharkhand
+            map = L.map('map').setView([23.3441, 85.3096], 13);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            map.on('click', function(e) {
+                setLocation(e.latlng.lat, e.latlng.lng);
+            });
+
+        // Simple in-browser recorder using MediaRecorder
+        const startBtn = document.getElementById('startRec');
+        const stopBtn = document.getElementById('stopRec');
+        const preview = document.getElementById('recPreview');
+        if (startBtn && stopBtn) {
+            startBtn.addEventListener('click', async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    voiceChunks = []; voiceBlob = null; preview.style.display = 'none';
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) voiceChunks.push(e.data); };
+                    mediaRecorder.onstop = () => {
+                        voiceBlob = new Blob(voiceChunks, { type: 'audio/webm' });
+                        preview.src = URL.createObjectURL(voiceBlob);
+                        preview.style.display = 'inline-block';
+                    };
+                    mediaRecorder.start();
+                    startBtn.disabled = true; stopBtn.disabled = false;
+                } catch (err) {
+                    alert('Microphone access failed: ' + err.message);
+                }
+            });
+            stopBtn.addEventListener('click', () => {
+                try {
+                    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                        mediaRecorder.stop();
+                    }
+                } catch (_) {}
+                startBtn.disabled = false; stopBtn.disabled = true;
+            });
+        }
+        }
+
+        function setLocation(lat, lng) {
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            
+            marker = L.marker([lat, lng]).addTo(map);
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+            
+            // Reverse geocoding to get address
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.display_name) {
+                        document.getElementById('address').value = data.display_name;
+                    }
+                })
+                .catch(error => console.log('Geocoding error:', error));
+        }
+
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        map.setView([lat, lng], 16);
+                        setLocation(lat, lng);
+                    },
+                    function(error) {
+                        alert('Error getting location: ' + error.message);
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+
+        // Enforce numeric-only phone input (max 10 digits)
+        (function(){
+            const phone = document.getElementById('citizen_phone');
+            if (phone) {
+                phone.addEventListener('input', (e) => {
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    if (e.target.value !== digits) e.target.value = digits;
+                });
+            }
+        })();
+
+        // Form submission
+        document.getElementById('issue-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const phone = (document.getElementById('citizen_phone').value || '').trim();
+            if (!/^\d{10}$/.test(phone)) {
+                showAlert('error', 'Please enter a valid 10-digit phone number.');
+                return;
+            }
+            // If we recorded audio, prefer attaching that as voice_note
+            if (voiceBlob && !formData.get('voice_note')) {
+                formData.append('voice_note', voiceBlob, 'voice_note.webm');
+            }
+            const loading = document.getElementById('loading');
+            const submitBtn = document.querySelector('.btn-submit');
+            
+            loading.style.display = 'block';
+            submitBtn.disabled = true;
+            
+            fetch('/api/submit_issue', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                
+                if (data.success) {
+                    showAlert('success', `Issue reported successfully! Your issue ID is: ${data.issue_id}`);
+                    this.reset();
+                    if (marker) {
+                        map.removeLayer(marker);
+                    }
+                } else {
+                    showAlert('error', data.message || 'Error submitting issue');
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                showAlert('error', 'Network error. Please try again.');
+                console.error('Error:', error);
+            });
+        });
+
+        function showAlert(type, message) {
+            const alertElement = document.getElementById(type === 'success' ? 'success-alert' : 'error-alert');
+            alertElement.textContent = message;
+            alertElement.style.display = 'block';
+            
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // File upload preview
+        document.getElementById('photo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const label = document.querySelector('.file-upload-label span');
+            
+            if (file) {
+                label.textContent = `Selected: ${file.name}`;
+            } else {
+                label.textContent = 'Click to upload a photo or drag and drop';
+            }
+        });
+
+        // Initialize map when page loads
+        window.addEventListener('load', initMap);
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js').catch(err => {
+                    console.log('SW registration failed:', err);
+                });
+            });
+        }
+
+        // Scroll Reveal using IntersectionObserver
+        document.addEventListener('DOMContentLoaded', () => {
+            // Auto-tag elements for reveal with staggered delays
+            const targets = [
+                ...document.querySelectorAll('.form-grid .form-group'),
+                ...document.querySelectorAll('.location-section'),
+                ...document.querySelectorAll('#map'),
+                ...document.querySelectorAll('.submit-section'),
+                ...document.querySelectorAll('.nav-buttons a')
+            ];
+            targets.forEach((el, idx) => {
+                el.classList.add('reveal');
+                // Stagger: 60ms steps, start at 80ms for smoother entry
+                el.style.transitionDelay = `${80 + idx * 60}ms`;
+            });
+
+            const els = Array.from(document.querySelectorAll('.reveal'));
+            if (!('IntersectionObserver' in window) || els.length === 0) {
+                els.forEach(el => el.classList.add('reveal-visible'));
+                return;
+            }
+            // Show immediately if already in view (above the fold)
+            const inView = (el) => {
+                const r = el.getBoundingClientRect();
+                return r.top < (window.innerHeight * 0.92) && r.bottom > 0; 
+            };
+            // Add a tiny delay so CSS transition can kick in for above-the-fold elements
+            els.forEach(el => {
+                if (inView(el)) {
+                    setTimeout(() => el.classList.add('reveal-visible'), 80);
+                }
+            });
+
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('reveal-visible');
+                        io.unobserve(entry.target);
+                    }
+                });
+            }, { root: null, rootMargin: '0px 0px -10% 0px', threshold: 0.01 });
+            els.filter(el => !el.classList.contains('reveal-visible')).forEach(el => io.observe(el));
+        });
+    </script>
+</body>
+</html>

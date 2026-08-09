@@ -1,0 +1,24 @@
+{
+  "name": "Samaadhan",
+  "short_name": "Samaadhan",
+  "description": "Crowdsourced Civic Issue Reporting and Resolution System for Jharkhand",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#667eea",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8' standalone='no'?><svg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='%23667eea'/><stop offset='1' stop-color='%23764ba2'/></linearGradient></defs><rect width='192' height='192' fill='url(%23g)'/><g fill='white'><circle cx='50' cy='120' r='12'/><rect x='44' y='70' width='12' height='50' rx='6'/><rect x='86' y='50' width='20' height='70' rx='10'/><rect x='126' y='90' width='20' height='30' rx='10'/><circle cx='96' cy='140' r='8'/></g></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8' standalone='no'?><svg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='%23667eea'/><stop offset='1' stop-color='%23764ba2'/></linearGradient></defs><rect width='512' height='512' fill='url(%23g)'/><g fill='white'><circle cx='130' cy='330' r='35'/><rect x='114' y='190' width='35' height='150' rx='18'/><rect x='230' y='140' width='60' height='200' rx='30'/><rect x='340' y='240' width='60' height='100' rx='30'/><circle cx='260' cy='380' r='20'/></g></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
