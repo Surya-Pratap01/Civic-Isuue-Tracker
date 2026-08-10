@@ -574,12 +574,10 @@ if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=port)
 
 # Ensure DB is ready on serverless platforms (e.g., Vercel) before first request
-@app.before_first_request
-def _init_db_on_first_request():
+with app.app_context():
     try:
-        with app.app_context():
-            db.create_all()
-            ensure_issue_extra_columns()
-            seed_departments_if_needed()
+        db.create_all()
+        ensure_issue_extra_columns()
+        seed_departments_if_needed()
     except Exception:
         pass
